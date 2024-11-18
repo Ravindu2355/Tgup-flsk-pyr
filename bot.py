@@ -12,7 +12,7 @@ from task_manager import read_tasks, write_task
 API_ID = os.getenv('apiid')
 API_HASH = os.getenv('apihash')
 BOT_TOKEN = os.getenv('tk')
-M_CHAT = os.getenv('mchat')
+M_CHAT = int(os.getenv('mchat'))
 AUTH_U = os.getenv('auth')
 
 progress_s="free"
@@ -69,7 +69,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         await reply_msg.edit("Thumbnail generated. Uploading to Telegram...")
         start_time=time.time()
         s_v = await app.send_video(
-               chat_id = "-1002412931248",
+               chat_id = M_CHAT,
                video = filename,
                caption=f'Uploaded: {filename}',
                thumb=thumb_path,
