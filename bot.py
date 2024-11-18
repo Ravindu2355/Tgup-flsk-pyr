@@ -5,7 +5,7 @@ from display_progress import progress_for_pyrogram, humanbytes, TimeFormatter
 from PIL import Image
 import json
 from task_manager import read_tasks, write_task
-
+from cookie import r_cookie, w_cookie, clear_cookie
 # Function to process a task (this could be expanded to do anything)
 
 
@@ -102,9 +102,6 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         # Handle any errors and notify the user
         await reply_msg.edit_text(f"An error occurred: {str(e)}")
         
-
-#Telegram bot handler for messages with URLs
-#@app.on_message(filters.private & filters.command("upload"))
 @app.on_message(filters.private & filters.regex(pattern=".*http.*"))
 async def handle_message(client, message: types.Message):
     if str(message.chat.id) in AUTH_U:
