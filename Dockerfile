@@ -19,4 +19,4 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 #EXPOSE 8000
 
 # Run the bot when the container launches
-CMD python3 bot.py
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8000", "app:flask_app"] & python3 bot.py
