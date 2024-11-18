@@ -19,4 +19,4 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 #EXPOSE 8000
 
 # Run the bot when the container launches
-CMD gunicorn app:ap & python3 bot.py
+CMD gunicorn app:app & python3 bot.py
