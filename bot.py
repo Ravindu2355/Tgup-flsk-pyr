@@ -10,6 +10,8 @@ API_ID = os.getenv('apiid')
 API_HASH = os.getenv('apihash')
 BOT_TOKEN = os.getenv('tk')
 M_CHAT = os.getenv('mchat')
+AUTH_U = os.getenv('auth')
+
 progress_s="free"
 
 # Ensure all required environment variables are set
@@ -103,10 +105,12 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
 # Telegram bot handler for messages with URLs
 @app.on_message(filters.private & ~filters.via_bot & filters.regex(pattern=".*http.*"))
 async def handle_message(client, message: types.Message):
-    video_url = message.text  # Assuming the whole text is the video URL
-    chat_id = message.chat.id
-    await upload_from_url(client, chat_id=chat_id, url=video_url)
-    
+    if message.chat.id in AUTH_U:
+        video_url = message.text  # Assuming the whole text is the video URL
+        chat_id = message.chat.id
+        await upload_from_url(client, chat_id=chat_id, url=video_url)
+    else:
+        await message.delete()
 # Flask route to handle upload requests
 @flask_app.route('/upload', methods=['GET'])
 def upload_video():
