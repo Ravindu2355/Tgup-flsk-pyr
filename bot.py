@@ -3,9 +3,7 @@ import asyncio, os, time, requests, math
 from moviepy.editor import VideoFileClip
 from display_progress import progress_for_pyrogram, humanbytes, TimeFormatter
 from PIL import Image
-import time
 import json
-import requests
 from task_manager import read_tasks, write_task
 
 # Function to process a task (this could be expanded to do anything)
@@ -26,8 +24,6 @@ if not all([API_ID, API_HASH, BOT_TOKEN,M_CHAT]):
 # Initialize the Pyrogram client
 app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
-# Initialize the Flask app
-flask_app = Flask(__name__)
 
 #nearest even
 def mcp(num):
@@ -116,19 +112,6 @@ async def handle_message(client, message: types.Message):
         await upload_from_url(client, chat_id=chat_id, url=video_url)
     else:
         await message.delete()
-# Flask route to handle upload requests
-#@flask_app.route('/upload', methods=['GET'])
-def upload_video():
-    chat_id = request.args.get('chat_id')
-    video_url = request.args.get('video_url')
-    async def run_upload():
-        async with app:
-            await upload_from_url(app, chat_id=chat_id, url=video_url)
-
-    # Run the async function in the event loop
-    asyncio.run(run_upload())
-
-    return jsonify({"message": "Video upload started!"})
 
 def process_task(task):
     chat_id = task["chat_id"]
@@ -157,9 +140,6 @@ def listen_for_tasks():
         # Sleep for a short interval (e.g., 5 seconds) before checking for new tasks again
         time.sleep(5)
 
-@flask_app.route('/')
-def hello_world():
-    return 'Hello from Koyeb'
 
 
 # Main entry point to run both Flask app and Pyrogram client
@@ -168,7 +148,6 @@ if __name__ == '__main__':
     app.start()
     listen_for_tasks()
 
-    # Run Flask app (use a different port if needed)
-
+    
     # Stop the Pyrogram client when the Flask app is stopped
     #app.stop()
