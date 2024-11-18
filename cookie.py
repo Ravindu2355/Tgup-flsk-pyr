@@ -1,8 +1,11 @@
 import json
 
-def r_cookies(file_path):
+
+cookiefile= 'cookies.json'
+
+def r_cookies():
     try:
-        with open(file_path, 'r') as file:
+        with open(cookiefile, 'r') as file:
             cookies = json.load(file)
             return cookies
     except FileNotFoundError:
@@ -12,12 +15,12 @@ def r_cookies(file_path):
         print("Error decoding JSON. Returning empty dictionary.")
         return {}
 
-def w_cookies(file_path, cookies):
-    with open(file_path, 'w') as file:
+def w_cookies( cookies):
+    with open(cookiefile, 'w') as file:
         json.dump(cookies, file, indent=4)
     print("Cookies have been written to the file.")
 
-def clear_cookies(file_path):
-    with open(file_path, 'w') as file:
+def clear_cookies():
+    with open(cookiefile, 'w') as file:
         json.dump({}, file)
     print("Cookies have been cleared.")
