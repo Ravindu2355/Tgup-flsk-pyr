@@ -69,8 +69,8 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         await reply_msg.edit("Thumbnail generated. Uploading to Telegram...")
         start_time=time.time()
         s_v = await app.send_video(
-               chat_id=M_CHAT,
-               video=filename,
+               chat_id = "-1002412931248",
+               video = filename,
                caption=f'Uploaded: {filename}',
                thumb=thumb_path,
                supports_streaming=True,  # Ensure the video is streamable
