@@ -1,10 +1,16 @@
-# app.py
+from flask import Flask, jsonify
+import os
+from flask_cors import CORS
 
-def app(environ, start_response):
-    # The response headers
-    status = '200 OK'
-    headers = [('Content-type', 'text/html')]
-    start_response(status, headers)
-    
-    # The body of the response (Hello World)
-    return [b"Hello, World!"]
+opw = os.getenv('opw')
+app = Flask(__name__)
+
+CORS(app)
+
+@app.route('/')
+def hello_world():
+    return 'Hello from Koyeb'
+
+
+if __name__ == "__main__":
+    app.run(port=8000)
