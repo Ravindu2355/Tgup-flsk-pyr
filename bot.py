@@ -103,9 +103,9 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         await reply_msg.edit_text(f"An error occurred: {str(e)}")
         
 
-# Telegram bot handler for messages with URLs
-#@app.on_message(filters.private & filters.regex(pattern=".*http.*"))
-@app.on_message(filters.private & filters.command("upload"))
+#Telegram bot handler for messages with URLs
+#@app.on_message(filters.private & filters.command("upload"))
+@app.on_message(filters.private & filters.regex(pattern=".*http.*"))
 async def handle_message(client, message: types.Message):
     if str(message.chat.id) in AUTH_U:
         video_url = message.text  # Assuming the whole text is the video URL
