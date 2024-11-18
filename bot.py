@@ -5,7 +5,7 @@ from display_progress import progress_for_pyrogram, humanbytes, TimeFormatter
 from PIL import Image
 import json
 from task_manager import read_tasks, write_task
-from cookie import r_cookie, w_cookie, clear_cookie
+from cookie import r_cookies, w_cookies, clear_cookies
 # Function to process a task (this could be expanded to do anything)
 
 
@@ -110,6 +110,32 @@ async def handle_message(client, message: types.Message):
         await upload_from_url(client, chat_id=chat_id, url=video_url)
     else:
         await message.delete()
+
+@app.on_message(filters.private & filters.command("setc"))
+async def set_c(client,message:types.Message):
+    try:
+        st = message.text.split(" ")[0]
+        if st == "" or not st:
+            message.reply(f"Not Found cookies!...")
+            return
+        re = w_cookies(st);
+        await message.reply(f"cookies settuped!\n{re}")
+    except Exception as e:
+        await message.reply(f"An Err {e}")
+
+@app.on_message(filters.private & filters.command("rem_c"))
+async def set_c(client,message:types.Message):
+    try:
+        st = message.text.split(" ")[0]
+        if st == "" or not st:
+            await message.reply(f"Not Found cookies!...")
+            return
+        re = clear_cookies(st);
+        await message.reply(f"cookie cleared!\n{re}")
+    except Exception as e:
+        await message.reply(f"An Err {e}")
+
+        
 
 def process_task(task):
     chat_id = task["chat_id"]
