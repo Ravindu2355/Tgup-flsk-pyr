@@ -9,12 +9,12 @@ from PIL import Image
 API_ID = os.getenv('apiid')
 API_HASH = os.getenv('apihash')
 BOT_TOKEN = os.getenv('tk')
-
+M_CHAT = os.getenv('mchat')
 progress_s="free"
 
 # Ensure all required environment variables are set
-if not all([API_ID, API_HASH, BOT_TOKEN]):
-    raise ValueError("API_ID, API_HASH, and BOT_TOKEN environment variables must be set.")
+if not all([API_ID, API_HASH, BOT_TOKEN,M_CHAT]):
+    raise ValueError("API_ID, API_HASH, M_CHAT and BOT_TOKEN environment variables must be set.")
 
 # Initialize the Pyrogram client
 app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
@@ -64,18 +64,24 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
               img.save(thumb_path, "JPEG")
         await reply_msg.edit("Thumbnail generated. Uploading to Telegram...")
         start_time=time.time()
-        await client.send_video(
-            chat_id=chat_id,
-            video=filename,
-            caption=f'Uploaded: {filename}',
-            thumb=thumb_path,
-            supports_streaming=True,  # Ensure the video is streamable
-            progress=progress_for_pyrogram,
-            progress_args=(
+        s_v = await bot.send_video(
+               chat_id=M_CHAT,
+               video=filename,
+               caption=f'Uploaded: {filename}',
+               thumb=thumb_path,
+               supports_streaming=True,  # Ensure the video is streamable
+               progress=progress_for_pyrogram,
+               progress_args=(
                 "uploading!",
                  reply_msg,
                  start_time
-           )
+              )
+             )
+        fid=s_v.video.file_id
+        await bot.send_video(
+            chat_id=chat_id,
+            video=fid,
+            caption=f"**Uploaded via RvX**"
         )
         
         # Clean up the local files after uploading 
