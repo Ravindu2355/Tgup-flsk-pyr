@@ -31,7 +31,7 @@ def mcp(num):
     
 # Function to upload a video from a URL to Telegram
 async def upload_from_url(client: Client, chat_id:str, url: str):
-    reply_message = await app.send_message(chat_id=chat_id,text="Processing!....")
+    reply_msg = await app.send_message(chat_id=chat_id,text="Processing!....")
     try:
         if len(url) < 2:
             await reply_msg.edit_text("Please provide a URL!")
