@@ -41,7 +41,11 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         await reply_msg.edit_text("Starting download...")
         progress_s="Download starting...."
         # Start downloading the file
-        response = requests.get(url, stream=True)
+        cookies = r_cookies()
+        if not cookies:
+            response = requests.get(url, cookies=cookies, stream=True)
+        else:
+            response = requests.get(url, stream=True)
         total_size = int(response.headers.get('content-length', 0))  # Get the total file size
         filename = url.split("/")[-1]  # Extract the filename from the URL
         if '?' in filename:
