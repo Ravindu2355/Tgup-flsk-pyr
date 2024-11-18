@@ -27,7 +27,7 @@ app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 #nearest even
 def mcp(num):
-    return int((num + 1) // 2) * 2
+    return int((num + 1) // 2) * 10
     
 # Function to upload a video from a URL to Telegram
 async def upload_from_url(client: Client, chat_id:str, url: str):
@@ -54,15 +54,12 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
                     file.write(chunk)
                     downloaded_size += len(chunk)
                     percent = (downloaded_size / total_size) * 100
-                    # Update progress approximately every 2%
-                    #if total_size > 0 and downloaded_size % (total_size // 50) == 0:
-                    if total_size > 0 and percent >= tr_s:
-                        tr_s = mcp(percent)
-                        progress_i = int(20 * downloaded_size / total_size)
-                        progress='[' + '✅️' * progress_i + '❌️' * (20 - progress_i) + ']'
-                        await reply_msg.edit_text(f"Downloading: {progress} {percent:.2f}%")
-                        #progress_s=f"downloading...\n{progress}\n{percent:.2f}%"
-                        print(percent)
+                    if total_size > 0 and percent // 10 > tr_s:
+                       tr_s = int(percent // 10)  # Store the latest 10% interval
+                       progress_i = int(20 * downloaded_size / total_size)
+                       progress = '[' + '✅️' * progress_i + '❌️' * (20 - progress_i) + ']'
+                       await reply_msg.edit_text(f"Downloading: {progress} {percent:.2f}%")
+                
         await reply_msg.edit_text("Download complete. Generating thumbnail...")
         thumb_path='thumb.jpg'
         with VideoFileClip(filename) as video:
