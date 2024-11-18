@@ -30,7 +30,7 @@ def mcp(num):
     
 # Function to upload a video from a URL to Telegram
 async def upload_from_url(client: Client, chat_id:str, url: str):
-    reply_message = app.send_message(chat_id=chat_id,text="Processing!....")
+    reply_message = await app.send_message(chat_id=chat_id,text="Processing!....")
     try:
         if len(url) < 2:
             await reply_msg.edit_text("Please provide a URL!")
@@ -87,7 +87,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         await bot.send_video(
             chat_id=chat_id,
             video=fid,
-            caption=f"**Uploaded via RvX**"
+            caption=f"**Uploaded via RvXBot**"
         )
         
         # Clean up the local files after uploading 
@@ -95,7 +95,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         if thumb_path and os.path.exists(thumb_path):
             os.remove(thumb_path)
         progress_s="free"
-        await reply_msg.edit_text("Upload complete!")
+        await reply_msg.delete()
 
     except Exception as e:
         # Handle any errors and notify the user
