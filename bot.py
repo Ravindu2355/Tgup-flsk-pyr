@@ -22,6 +22,10 @@ app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 # Initialize the Flask app
 flask_app = Flask(__name__)
 
+#nearest even
+def mcp(num):
+    return int((num + 1) // 2) * 2
+    
 # Function to upload a video from a URL to Telegram
 async def upload_from_url(client: Client, chat_id:str, url: str):
     reply_message = app.send_message(chat_id=chat_id,text="Processing!....")
@@ -50,7 +54,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
                     # Update progress approximately every 2%
                     #if total_size > 0 and downloaded_size % (total_size // 50) == 0:
                     if total_size > 0 and percent >= tr_s:
-                        tr_s = tr_s + 2
+                        tr_s = mcp(percent)
                         progress_i = int(20 * downloaded_size / total_size)
                         progress='[' + '✅️' * progress_i + '❌️' * (20 - progress_i) + ']'
                         await reply_msg.edit_text(f"Downloading: {progress} {percent:.2f}%")
