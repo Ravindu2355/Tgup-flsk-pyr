@@ -129,6 +129,11 @@ def upload_video():
 
     return jsonify({"message": "Video upload started!"})
 
+@flask_app.route('/')
+def hello_world():
+    return 'Hello from Koyeb'
+
+
 # Main entry point to run both Flask app and Pyrogram client
 if __name__ == '__main__':
     # Start Pyrogram client in a separate thread to allow Flask to run concurrently
