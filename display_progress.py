@@ -11,9 +11,9 @@ logger = logging.getLogger(__name__)
 import math, os, time, shutil
 
 
-from config import Config
+#from config import Config
 # the Strings used for this "thing"
-from translation import Translation
+#from translation import Translation
 
 
 async def progress_for_pyrogram(
