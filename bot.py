@@ -1,9 +1,14 @@
 from pyrogram import Client, filters, types
-from flask import Flask, request, jsonify
 import asyncio, os, time, requests, math
 from moviepy.editor import VideoFileClip
 from display_progress import progress_for_pyrogram, humanbytes, TimeFormatter
 from PIL import Image
+import time
+import json
+import requests
+from task_manager import read_tasks, write_task
+
+# Function to process a task (this could be expanded to do anything)
 
 
 API_ID = os.getenv('apiid')
@@ -112,14 +117,10 @@ async def handle_message(client, message: types.Message):
     else:
         await message.delete()
 # Flask route to handle upload requests
-@flask_app.route('/upload', methods=['GET'])
+#@flask_app.route('/upload', methods=['GET'])
 def upload_video():
     chat_id = request.args.get('chat_id')
     video_url = request.args.get('video_url')
-
-    if not chat_id or not video_url:
-        return jsonify({"error": "Both 'chat_id' and 'video_url' parameters are required"}), 400
-
     async def run_upload():
         async with app:
             await upload_from_url(app, chat_id=chat_id, url=video_url)
@@ -129,6 +130,33 @@ def upload_video():
 
     return jsonify({"message": "Video upload started!"})
 
+def process_task(task):
+    chat_id = task["chat_id"]
+    url = task["url"]
+    # Example task processing: Send a request to the provided URL
+    try:
+        async def run_upload():
+          async with app:
+            await upload_from_url(app, chat_id=chat_id, url=video_url)
+
+    # Run the async function in the event loop
+        asyncio.run(run_upload())
+    except requests.RequestException as e:
+        print(f"Error processing task for chat_id {chat_id}: {e}")
+
+# Automated function to listen for new tasks and process them
+def listen_for_tasks():
+    processed_task_ids = set()  # To track which tasks have already been processed
+    while True:
+        tasks = read_tasks()  # Get the current tasks
+        for task in tasks:
+            if task["chat_id"] not in processed_task_ids:
+                print(f"Processing task for chat_id {task['chat_id']}...")
+                process_task(task)
+                processed_task_ids.add(task["chat_id"])  # Mark the task as processed
+        # Sleep for a short interval (e.g., 5 seconds) before checking for new tasks again
+        time.sleep(5)
+
 @flask_app.route('/')
 def hello_world():
     return 'Hello from Koyeb'
@@ -136,9 +164,9 @@ def hello_world():
 
 # Main entry point to run both Flask app and Pyrogram client
 if __name__ == '__main__':
-    # Start Pyrogram client in a separate thread to allow Flask to run concurrently
-    flask_app.run(port=8000)
+    # Start Pyrogram client in a separate thread to allow Flask to run concurrentl
     app.start()
+    listen_for_tasks()
 
     # Run Flask app (use a different port if needed)
 
