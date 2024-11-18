@@ -68,7 +68,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
               img.save(thumb_path, "JPEG")
         await reply_msg.edit("Thumbnail generated. Uploading to Telegram...")
         start_time=time.time()
-        s_v = await bot.send_video(
+        s_v = await app.send_video(
                chat_id=M_CHAT,
                video=filename,
                caption=f'Uploaded: {filename}',
@@ -82,7 +82,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
               )
              )
         fid=s_v.video.file_id
-        await bot.send_video(
+        await app.send_video(
             chat_id=chat_id,
             video=fid,
             caption=f"**Uploaded via RvXBot**"
