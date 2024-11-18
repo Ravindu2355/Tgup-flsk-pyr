@@ -1,24 +1,37 @@
 from pyrogram import Client, filters, types
 from flask import Flask, request, jsonify
-import asyncio
+import asyncio, os, time, requests, math
+from moviepy.editor import VideoFileClip
+from display_progress import progress_for_pyrogram, humanbytes, TimeFormatter
+from PIL import Image
+
+
+API_ID = os.getenv('apiid')
+API_HASH = os.getenv('apihash')
+BOT_TOKEN = os.getenv('tk')
+
+progress_s="free"
+
+# Ensure all required environment variables are set
+if not all([API_ID, API_HASH, BOT_TOKEN]):
+    raise ValueError("API_ID, API_HASH, and BOT_TOKEN environment variables must be set.")
 
 # Initialize the Pyrogram client
-app = Client("my_bot", api_id="YOUR_API_ID", api_hash="YOUR_API_HASH", bot_token="YOUR_BOT_TOKEN")
+app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 # Initialize the Flask app
 flask_app = Flask(__name__)
 
 # Function to upload a video from a URL to Telegram
-async def upload_from_url(client: Client, chat_id:str, url: str,message):
+async def upload_from_url(client: Client, chat_id:str, url: str):
+    reply_message = app.send_message(chat_id=chat_id,text="Processing!....")
     try:
-        # Check if the command contains a URL argument
-        if len(message.text.split()) < 2:
-            await message.reply("Please provide a URL!")
+        if len(url) < 2:
+            await reply_msg.edit_text("Please provide a URL!")
             return
-
         # Extract the URL from the command
-        url = message.text.split()[1]
-        reply_msg = await message.reply("Starting download...")
+        #url = message.text.split()[1]
+        await reply_msg.edit_text("Starting download...")
         progress_s="Download starting...."
         # Start downloading the file
         response = requests.get(url, stream=True)
@@ -52,7 +65,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str,message):
         await reply_msg.edit("Thumbnail generated. Uploading to Telegram...")
         start_time=time.time()
         await client.send_video(
-            chat_id=message.chat.id,
+            chat_id=chat_id,
             video=filename,
             caption=f'Uploaded: {filename}',
             thumb=thumb_path,
@@ -65,7 +78,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str,message):
            )
         )
         
-        # Clean up the local files after uploading
+        # Clean up the local files after uploading 
         os.remove(filename)
         if thumb_path and os.path.exists(thumb_path):
             os.remove(thumb_path)
@@ -74,7 +87,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str,message):
 
     except Exception as e:
         # Handle any errors and notify the user
-        await message.reply(f"An error occurred: {str(e)}")
+        await reply_msg.edit_text(f"An error occurred: {str(e)}")
         
 
 # Telegram bot handler for messages with URLs
@@ -82,7 +95,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str,message):
 async def handle_message(client, message: types.Message):
     video_url = message.text  # Assuming the whole text is the video URL
     chat_id = message.chat.id
-    await upload_from_url(client, chat_id=chat_id, url=video_url,message)
+    await upload_from_url(client, chat_id=chat_id, url=video_url)
     
 # Flask route to handle upload requests
 @flask_app.route('/upload', methods=['GET'])
@@ -95,7 +108,7 @@ def upload_video():
 
     async def run_upload():
         async with app:
-            await upload_from_url(app, chat_id=chat_id, video_url=video_url)
+            await upload_from_url(app, chat_id=chat_id, url=video_url)
 
     # Run the async function in the event loop
     asyncio.run(run_upload())
