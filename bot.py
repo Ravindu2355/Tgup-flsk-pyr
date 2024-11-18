@@ -66,7 +66,9 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
                 
         await reply_msg.edit_text("Download complete. Generating thumbnail...")
         thumb_path='thumb.jpg'
+        duration = 0
         with VideoFileClip(filename) as video:
+              duration = video.duration
               frame = video.get_frame(3.0)
               img = Image.fromarray(frame)
               img.save(thumb_path, "JPEG")
@@ -76,6 +78,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
                chat_id = chat_id,
                video = filename,
                caption=f'Uploaded: {filename}',
+               duration=duration,
                thumb=thumb_path,
                supports_streaming=True,  # Ensure the video is streamable
                progress=progress_for_pyrogram,
