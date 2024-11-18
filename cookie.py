@@ -24,3 +24,11 @@ def clear_cookies():
     with open(cookiefile, 'w') as file:
         json.dump({}, file)
     print("Cookies have been cleared.")
+
+def parse_cookie_str(cookie_string):
+    cookies = {}
+    cookie_pairs = cookie_string.split('; ')
+    for pair in cookie_pairs:
+        key, value = pair.split('=', 1)
+        cookies[key] = value
+    return cookies
