@@ -104,7 +104,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         
 
 # Telegram bot handler for messages with URLs
-@app.on_message(filters.private & ~filters.via_bot & filters.regex(pattern=".*http.*"))
+@app.on_message(filters.private & filters.regex(pattern=".*http.*"))
 async def handle_message(client, message: types.Message):
     if str(message.chat.id) in AUTH_U:
         video_url = message.text  # Assuming the whole text is the video URL
@@ -143,10 +143,9 @@ def listen_for_tasks():
 
 
 # Main entry point to run both Flask app and Pyrogram client
-if __name__ == '__main__':
     # Start Pyrogram client in a separate thread to allow Flask to run concurrentl
-    app.start()
-    listen_for_tasks()
+app.start()
+listen_for_tasks()
 
     
     # Stop the Pyrogram client when the Flask app is stopped
