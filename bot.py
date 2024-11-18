@@ -69,7 +69,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         await reply_msg.edit("Thumbnail generated. Uploading to Telegram...")
         start_time=time.time()
         s_v = await app.send_video(
-               chat_id = M_CHAT,
+               chat_id = chat_id,
                video = filename,
                caption=f'Uploaded: {filename}',
                thumb=thumb_path,
@@ -82,11 +82,14 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
               )
              )
         fid=s_v.video.file_id
-        await app.send_video(
-            chat_id=chat_id,
+        try:
+            await app.send_video(
+            chat_id=M_CHAT,
             video=fid,
             caption=f"**Uploaded via RvXBot**"
-        )
+            )
+        except Exception as e:
+            pass
         
         # Clean up the local files after uploading 
         os.remove(filename)
