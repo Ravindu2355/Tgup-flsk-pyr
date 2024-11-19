@@ -3,10 +3,10 @@
 # Ask Doubt on telegram @KingVJ01
 
 # the logging things
-import logging
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+#import logging
+#logging.basicConfig(level=logging.DEBUG,
+                    #format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+#logger = logging.getLogger(__name__)
 
 import math, os, time, shutil
 
