@@ -52,17 +52,34 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
             filename = filename.split("?")[0]
         downloaded_size = 0
         tr_s = 0
+        start_t=time.time()
         with open(filename, 'wb') as file:
             for chunk in response.iter_content(chunk_size=1024):
                 if chunk:
                     file.write(chunk)
                     downloaded_size += len(chunk)
                     percent = (downloaded_size / total_size) * 100
-                    if total_size > 0 and percent // 10 > tr_s:
-                       tr_s = int(percent // 10)  # Store the latest 10% interval
+                    now_t=time.time()
+                    diffr=now_t-start_t
+                    #if total_size > 0 and percent // 10 > tr_s:
+                    if round(diffr % 10.00) == 0 or downloaded_size == total_size:
+                       tr_s = int(percent // 10)
+                       speed = downloaded_size / diffr
+                       elapsed_time = round(diffr) * 1000
+                       time_to_completion = round((total_size - downloaded_size) / speed) * 1000
+                       estimated_total_time = elapsed_time + time_to_completion
+                       elapsed_time = TimeFormatter(milliseconds=elapsed_time)
+                       estimated_total_time = TimeFormatter(milliseconds=estimated_total_time)
                        progress_i = int(20 * downloaded_size / total_size)
                        progress = '[' + '✅️' * progress_i + '❌️' * (20 - progress_i) + ']'
-                       await reply_msg.edit_text(f"Downloading: {progress} {percent:.2f}%")
+                       tmp = "{0} of {1}\nSpeed: {2}/s\nETA: {3}\n".format(
+                          humanbytes(downloaded_size),
+                          humanbytes(total_size),
+                          humanbytes(speed),
+                          # elapsed_time if elapsed_time != '' else "0 s",
+                          estimated_total_time if estimated_total_time != '' else "0 s"
+                       )
+                       await reply_msg.edit_text(f"Downloading: {progress}\n\nP:{percent:.2f}%\n{tmp}")
                 
         await reply_msg.edit_text("Download complete. Generating thumbnail...")
         thumb_path='thumb.jpg'
