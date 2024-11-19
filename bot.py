@@ -4,6 +4,8 @@ from moviepy.editor import VideoFileClip
 from display_progress import progress_for_pyrogram, humanbytes, TimeFormatter
 from PIL import Image
 import json
+from app import app as flask_app
+from flask import Flask, jsonify, request
 from task_manager import read_tasks, write_task
 from cookie import r_cookies, w_cookies, clear_cookies
 # Function to process a task (this could be expanded to do anything)
@@ -188,7 +190,21 @@ def listen_for_tasks():
         # Sleep for a short interval (e.g., 5 seconds) before checking for new tasks again
         time.sleep(5)
 
+@flask_app.route('/upload', methods=['GET'])
+def upload_video():
+    chat_id = request.args.get('chatid')
+    video_url = request.args.get('url')
+    if not chat_id or not video_url:
+        return jsonify({"s":0,"message": "No parameter found!"})
+    try:
+        async def run_upload():
+          async with app:
+            await upload_from_url(tg, chat_id=chat_id, url=video_url)
 
+    # Run the async function in the event loop
+    asyncio.run(run_upload())
+    
+    return jsonify({"s":1,"message": "Video add to task list!"})
 
 # Main entry point to run both Flask app and Pyrogram client
     # Start Pyrogram client in a separate thread to allow Flask to run concurrentl
