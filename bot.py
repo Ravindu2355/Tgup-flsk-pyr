@@ -73,7 +73,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
                        elapsed_time = TimeFormatter(milliseconds=elapsed_time)
                        estimated_total_time = TimeFormatter(milliseconds=estimated_total_time)
                        progress_i = int(20 * downloaded_size / total_size)
-                       progress = '[' + '✅️' * progress_i + '❌️' * (20 - progress_i) + ']'
+                       progress = '[' + '✅️' * math.floor(progress_i) + '❌️' * math.floor((20 - progress_i)) + ']'
                        tmp = "{0} of {1}\nSpeed: {2}/s\nETA: {3}\n".format(
                           humanbytes(downloaded_size),
                           humanbytes(total_size),
@@ -87,17 +87,17 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         thumb_path='thumb.jpg'
         duration = 0
         with VideoFileClip(filename) as video:
-              duration = video.duration
+              duration = int(video.duration)
               frame = video.get_frame(3.0)
               img = Image.fromarray(frame)
               img.save(thumb_path, "JPEG")
-        await reply_msg.edit("Thumbnail generated. Uploading to Telegram...")
+        await reply_msg.edit(f"Thumbnail generated.\nduration detected as {duration} Uploading to Telegram...")
         start_time=time.time()
         s_v = await app.send_video(
                chat_id = chat_id,
                video = filename,
-               caption=f'Uploaded: {filename}',
                duration=duration,
+               caption=f'Uploaded: {filename}',
                thumb=thumb_path,
                supports_streaming=True,  # Ensure the video is streamable
                progress=progress_for_pyrogram,
@@ -127,6 +127,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
     except Exception as e:
         # Handle any errors and notify the user
         await reply_msg.edit_text(f"An error occurred: {str(e)}")
+        print(e)
         
 @app.on_message(filters.private & filters.regex(pattern=".*http.*"))
 async def handle_message(client, message: types.Message):
