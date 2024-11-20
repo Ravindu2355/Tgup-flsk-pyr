@@ -127,7 +127,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         progress_s=f"Thumbnail generated.\nduration detected as {duration} Uploading to Telegram..."
         start_time=time.time()
         s_v = await app.send_video(
-               chat_id = chat_id,
+               chat_id = int(chat_id),
                video = filename,
                duration=duration,
                caption=f'Uploaded: {filename}',
@@ -143,9 +143,13 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         fid=s_v.video.file_id
         try:
             await app.send_video(
-            chat_id=M_CHAT,
+            chat_id=int(M_CHAT),
             video=fid,
             caption=f"**Uploaded via RvXBot**"
+            )
+            await app.send_message(
+                chat_id=chat_id,
+                text=f"M_CHAT: {M_CHAT}({type(M_CHAT)}\n chat_id: {chat_id}({type(chat_id)})"
             )
         except Exception as e:
             pass
