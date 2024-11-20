@@ -1,5 +1,5 @@
 from pyrogram import Client, filters, types
-import asyncio, os, time, requests, math
+import asyncio, os, time, requests, math, psutil
 from moviepy.editor import VideoFileClip
 from display_progress import progress_for_pyrogram, humanbytes, TimeFormatter
 from PIL import Image
@@ -172,7 +172,26 @@ async def set_c(client,message:types.Message):
     except Exception as e:
         await message.reply(f"An Err {e}")
 
-        
+@app.on_message(filters.private & filters.command("ping"))
+async def c_pin(client,message:types.Message):
+    start_time = time.time()  # Record start time
+    reply_msg = await message.reply("🔰Ping checking...🔰")
+    end_time = time.time()  # Record end time after sending
+    latency = (end_time - start_time) * 1000  # Convert to milliseconds
+    reply_msg.edit_text(f"Ping: {latency:.2f} ms")
+
+@app.on_message(filters.private & filters.command("disc"))
+async def c_disc(client,message:types.Message):
+    disk_usage = psutil.disk_usage('/')
+    total_space = disk_usage.total / (1024 ** 3)  # Convert to GB
+    used_space = disk_usage.used / (1024 ** 3)    # Convert to GB
+    free_space = disk_usage.free / (1024 ** 3)    # Convert to GB
+    message.reply(
+        f"Disk Space:\n"
+        f"Total: {total_space:.2f} GB\n"
+        f"Used: {used_space:.2f} GB\n"
+        f"Free: {free_space:.2f} GB"
+    )
 
 def process_task(task):
     chat_id = task["chat_id"]
@@ -201,6 +220,9 @@ def listen_for_tasks():
         # Sleep for a short interval (e.g., 5 seconds) before checking for new tasks again
         time.sleep(5)
 
+@flask_app.route('/progress')
+def s_pro():
+    
 @flask_app.route('/upload', methods=['GET'])
 def upload_video():
     chat_id = request.args.get('chatid')
@@ -209,7 +231,7 @@ def upload_video():
         return jsonify({"s":0,"message": "No parameter found!"})
     try:
         async def run_upload():
-            await upload_from_url(tg, chat_id=chat_id, url=video_url)
+            await upload_from_url(app, chat_id=chat_id, url=video_url)
         asyncio.run(run_upload())
         return jsonify({"s":1,"message": "Video add to Uploading!"})
     except Exception as e:
