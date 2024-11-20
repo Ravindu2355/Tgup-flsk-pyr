@@ -228,7 +228,7 @@ def listen_for_tasks():
         time.sleep(5)
         
 @flask_app.route('/makefree')
-async def s_pro():
+async def pr_free():
     global progress_s
     if progress_s != "free" and "error" in progress_s:
         progress_s = "free"
