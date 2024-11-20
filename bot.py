@@ -8,7 +8,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from task_manager import read_tasks, write_task
 from cookie import r_cookies, w_cookies, clear_cookies
-import threading
+from threading import Thread
 # Function to process a task (this could be expanded to do anything)
 
 flask_app = Flask(__name__)
@@ -253,7 +253,7 @@ def upload_video():
     if progress_s != "free":
         return jsonify({"s":0,"message": "Sorry bot is busy right now try again later!"})
     try:
-        upload_thread = threading.Thread(target=run_upload_t, args=(chat_id, video_url))
+        upload_thread = Thread(target=run_upload_t, args=(chat_id, video_url))
         upload_thread.start()
         return jsonify({"s":1,"message": "Video add to Uploading!","resd":f"chat_id: {chat_id} & url: {video_url}"})
     except Exception as e:
@@ -264,7 +264,7 @@ def upload_video():
 def run_flask():
     flask_app.run(host='0.0.0.0', port=5000)
 
-flask_thread = threading.Thread(target=run_flask)
+flask_thread = Thread(target=run_flask)
 flask_thread.start()
 
 app.run()
