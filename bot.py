@@ -39,7 +39,19 @@ app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 #nearest even
 def mcp(num):
     return int((num + 1) // 2) * 10
+
+def get_file_name_from_response(response):
+    # Check if Content-Disposition header is present
+    content_disposition = response.headers.get('Content-Disposition')
+    if content_disposition:
+        # Extract the filename from the Content-Disposition header
+        filename_part = content_disposition.split('filename=')[-1]
+        filename = filename_part.strip(' "')
+        return filename
     
+    # Fallback to extracting the file name from the URL
+    return f"video_{str(time.time())}.mp4"
+
 # Function to upload a video from a URL to Telegram
 async def upload_from_url(client: Client, chat_id:str, url: str):
     global progress_s
@@ -64,6 +76,8 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         filename = url.split("/")[-1]  # Extract the filename from the URL
         if '?' in filename:
             filename = filename.split("?")[0]
+        if "." in filename:
+            filename = get_file_name_from_response(response)
         downloaded_size = 0
         tr_s = ''
         start_t=time.time()
