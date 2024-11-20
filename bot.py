@@ -76,7 +76,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         filename = url.split("/")[-1]  # Extract the filename from the URL
         if '?' in filename:
             filename = filename.split("?")[0]
-        if "." in filename:
+        if "." not in filename:
             filename = get_file_name_from_response(response)
         downloaded_size = 0
         tr_s = ''
