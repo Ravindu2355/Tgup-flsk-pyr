@@ -4,11 +4,19 @@ from moviepy.editor import VideoFileClip
 from display_progress import progress_for_pyrogram, humanbytes, TimeFormatter
 from PIL import Image
 import json
-from app import app as flask_app
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from task_manager import read_tasks, write_task
 from cookie import r_cookies, w_cookies, clear_cookies
 # Function to process a task (this could be expanded to do anything)
+
+
+flask_app = Flask(__name__)
+
+@flask_app.route('/')
+def site1_home():
+    return "Welcome to Site 1 this can help for uper"
+
 
 
 API_ID = os.getenv('apiid')
@@ -53,7 +61,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         if '?' in filename:
             filename = filename.split("?")[0]
         downloaded_size = 0
-        tr_s = 0
+        tr_s = ''
         start_t=time.time()
         with open(filename, 'wb') as file:
             for chunk in response.iter_content(chunk_size=1024):
@@ -65,7 +73,6 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
                     diffr=now_t-start_t
                     #if total_size > 0 and percent // 10 > tr_s:
                     if round(diffr % 10.00) == 0 or downloaded_size == total_size:
-                       tr_s = int(percent // 10)
                        speed = downloaded_size / diffr
                        elapsed_time = round(diffr) * 1000
                        time_to_completion = round((total_size - downloaded_size) / speed) * 1000
@@ -81,8 +88,10 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
                           # elapsed_time if elapsed_time != '' else "0 s",
                           estimated_total_time if estimated_total_time != '' else "0 s"
                        )
-                       await reply_msg.edit_text(f"Downloading: {progress}\n\nP:{percent:.2f}%\n{tmp}")
-                
+                       nn_s = f"Downloading: {progress}\n\nP:{percent:.2f}%\n{tmp}"
+                       if nn_s != tr_s:  #avoiding same message sending err......
+                           tr_s = nn_s
+                           await reply_msg.edit_text(nn_s)
         await reply_msg.edit_text("Download complete. Generating thumbnail...")
         thumb_path='thumb.jpg'
         duration = 0
@@ -210,7 +219,8 @@ def upload_video():
 # Main entry point to run both Flask app and Pyrogram client
     # Start Pyrogram client in a separate thread to allow Flask to run concurrentl
 app.run()
-listen_for_tasks()
+if __name__ == "__main__":
+    flask_app.run(host='0.0.0.0', port=5000)
 
     
     # Stop the Pyrogram client when the Flask app is stopped
