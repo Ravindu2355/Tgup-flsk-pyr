@@ -234,7 +234,7 @@ def s_pro():
 
 @flask_app.route('/upload', methods=['GET'])
 def upload_video():
-    chat_id = request.args.get('chatid')
+    chat_id = int(request.args.get('chatid'))
     video_url = request.args.get('url')
     if not chat_id or not video_url:
         return jsonify({"s":0,"message": "No parameter found!"})
@@ -242,9 +242,9 @@ def upload_video():
         async def run_upload():
             await upload_from_url(app, chat_id=chat_id, url=video_url)
         asyncio.run(run_upload())
-        return jsonify({"s":1,"message": "Video add to Uploading!"})
+        return jsonify({"s":1,"message": "Video add to Uploading!","resd":f"chat_id: {chat_id} & url: {video_url}"})
     except Exception as e:
-        return jsonify({"s":0,"message": f"Err on run: {e}"})
+        return jsonify({"s":0,"message": f"Err on run: {e}","resd":f"chat_id: {chat_id} & url: {video_url}"})
 # Main entry point to run both Flask app and Pyrogram client
     # Start Pyrogram client in a separate thread to allow Flask to run concurrentl
 #if __name__ == "__main__":
