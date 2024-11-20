@@ -143,6 +143,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
     except Exception as e:
         # Handle any errors and notify the user
         await reply_msg.edit_text(f"An error occurred: {str(e)}")
+        progress_s=f"An error occurred: {str(e)}"
         print(e)
         
 @app.on_message(filters.private & filters.regex(pattern=".*http.*"))
