@@ -11,8 +11,8 @@ from cookie import r_cookies, w_cookies, clear_cookies
 from threading import Thread
 # Function to process a task (this could be expanded to do anything)
 
-
 flask_app = Flask(__name__)
+CORS(flask_app)
 
 @flask_app.route('/')
 def site1_home():
