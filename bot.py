@@ -18,7 +18,7 @@ CORS(flask_app)
 def site1_home():
     return "Welcome to Site 1 this can help for uper"
 
-
+sizelimit=2147483648
 
 API_ID = os.getenv('apiid')
 API_HASH = os.getenv('apihash')
@@ -60,7 +60,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
     try:
         if len(url) < 2:
             await reply_msg.edit_text("Please provide a URL!")
-            progress_s="Not valid Url"
+            progress_s="free"
             return
         # Extract the URL from the command
         #url = message.text.split()[1]
@@ -73,6 +73,9 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
         else:
             response = requests.get(url, stream=True)
         total_size = int(response.headers.get('content-length', 0))  # Get the total file size
+        if total_size >= sizelimit:
+            await reply_msg.edit_text("That file was bigger than telegram size limitations for me🥲")
+            return
         filename = url.split("/")[-1]  # Extract the filename from the URL
         if '?' in filename:
             filename = filename.split("?")[0]
