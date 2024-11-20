@@ -42,10 +42,13 @@ def mcp(num):
     
 # Function to upload a video from a URL to Telegram
 async def upload_from_url(client: Client, chat_id:str, url: str):
+    global progress_s
     reply_msg = await app.send_message(chat_id=chat_id,text="Processing!....")
+    progress_s="Processing...!"
     try:
         if len(url) < 2:
             await reply_msg.edit_text("Please provide a URL!")
+            progress_s="Not valid Url"
             return
         # Extract the URL from the command
         #url = message.text.split()[1]
@@ -72,6 +75,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
                     percent = (downloaded_size / total_size) * 100
                     now_t=time.time()
                     diffr=now_t-start_t
+                    progress_s=f"Downloading... {percent}% of {humanbytes(total_size)}"
                     #if total_size > 0 and percent // 10 > tr_s:
                     if round(diffr % 10.00) == 0 or downloaded_size == total_size:
                        speed = downloaded_size / diffr
@@ -94,6 +98,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
                            tr_s = nn_s
                            await reply_msg.edit_text(nn_s)
         await reply_msg.edit_text("Download complete. Generating thumbnail...")
+        progress_s="Download complete. Generating thumbnail..."
         thumb_path='thumb.jpg'
         duration = 0
         with VideoFileClip(filename) as video:
@@ -102,6 +107,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
               img = Image.fromarray(frame)
               img.save(thumb_path, "JPEG")
         await reply_msg.edit(f"Thumbnail generated.\nduration detected as {duration} Uploading to Telegram...")
+        progress_s=f"Thumbnail generated.\nduration detected as {duration} Uploading to Telegram..."
         start_time=time.time()
         s_v = await app.send_video(
                chat_id = chat_id,
@@ -222,7 +228,9 @@ def listen_for_tasks():
 
 @flask_app.route('/progress')
 def s_pro():
-    
+    return jsonify({"s":1,"progress": progress_s,"message":"success!"})
+
+
 @flask_app.route('/upload', methods=['GET'])
 def upload_video():
     chat_id = request.args.get('chatid')
