@@ -209,12 +209,9 @@ def upload_video():
         return jsonify({"s":0,"message": "No parameter found!"})
     try:
         async def run_upload():
-          async with app:
             await upload_from_url(tg, chat_id=chat_id, url=video_url)
-
-        # Run the async function in the event loop
         asyncio.run(run_upload())
-        return jsonify({"s":1,"message": "Video add to task list!"})
+        return jsonify({"s":1,"message": "Video add to Uploading!"})
     except Exception as e:
         return jsonify({"s":0,"message": f"Err on run: {e}"})
 # Main entry point to run both Flask app and Pyrogram client
