@@ -8,7 +8,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from task_manager import read_tasks, write_task
 from cookie import r_cookies, w_cookies, clear_cookies
-from threading import Thread
+import threading
 # Function to process a task (this could be expanded to do anything)
 
 flask_app = Flask(__name__)
@@ -185,7 +185,7 @@ async def c_pin(client,message:types.Message):
     reply_msg = await message.reply("🔰Ping checking...🔰")
     end_time = time.time()  # Record end time after sending
     latency = (end_time - start_time) * 1000  # Convert to milliseconds
-    reply_msg.edit_text(f"Ping: {latency:.2f} ms")
+    await reply_msg.edit_text(f"Ping: {latency:.2f} ms")
 
 @app.on_message(filters.private & filters.command("disc"))
 async def c_disc(client,message:types.Message):
@@ -193,7 +193,7 @@ async def c_disc(client,message:types.Message):
     total_space = disk_usage.total / (1024 ** 3)  # Convert to GB
     used_space = disk_usage.used / (1024 ** 3)    # Convert to GB
     free_space = disk_usage.free / (1024 ** 3)    # Convert to GB
-    message.reply(
+    await message.reply(
         f"Disk Space:\n"
         f"Total: {total_space:.2f} GB\n"
         f"Used: {used_space:.2f} GB\n"
@@ -226,11 +226,23 @@ def listen_for_tasks():
                 processed_task_ids.add(task["chat_id"])  # Mark the task as processed
         # Sleep for a short interval (e.g., 5 seconds) before checking for new tasks again
         time.sleep(5)
+        
+@flask_app.route('/makefree')
+async def s_pro():
+    global progress_s
+    if progress_s != "free" and "error" in progress_s:
+        progress_s = "free"
+        return jsonify({"s":1,"message":"success!"})
+    else:
+        return jsonify({"s":0,"message": "Not Errored!"})
+        
 
 @flask_app.route('/progress')
 def s_pro():
     return jsonify({"s":1,"progress": progress_s,"message":"success!"})
 
+def run_upload_t(chat_id, video_url):
+    asyncio.run(upload_from_url(app, chat_id=chat_id, url=video_url))
 
 @flask_app.route('/upload', methods=['GET'])
 def upload_video():
@@ -238,10 +250,11 @@ def upload_video():
     video_url = request.args.get('url')
     if not chat_id or not video_url:
         return jsonify({"s":0,"message": "No parameter found!"})
+    if progress_s != "free":
+        return jsonify({"s":0,"message": "Sorry bot is busy right now try again later!"})
     try:
-        async def run_upload():
-            await upload_from_url(app, chat_id=chat_id, url=video_url)
-        asyncio.run(run_upload())
+        upload_thread = threading.Thread(target=run_upload_t, args=(chat_id, video_url))
+        upload_thread.start()
         return jsonify({"s":1,"message": "Video add to Uploading!","resd":f"chat_id: {chat_id} & url: {video_url}"})
     except Exception as e:
         return jsonify({"s":0,"message": f"Err on run: {e}","resd":f"chat_id: {chat_id} & url: {video_url}"})
@@ -251,7 +264,7 @@ def upload_video():
 def run_flask():
     flask_app.run(host='0.0.0.0', port=5000)
 
-flask_thread = Thread(target=run_flask)
+flask_thread = threading.Thread(target=run_flask)
 flask_thread.start()
 
 app.run()
