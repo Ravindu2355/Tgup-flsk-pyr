@@ -8,6 +8,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from task_manager import read_tasks, write_task
 from cookie import r_cookies, w_cookies, clear_cookies
+from threading import Thread
 # Function to process a task (this could be expanded to do anything)
 
 
@@ -218,10 +219,13 @@ def upload_video():
         return jsonify({"s":0,"message": f"Err on run: {e}"})
 # Main entry point to run both Flask app and Pyrogram client
     # Start Pyrogram client in a separate thread to allow Flask to run concurrentl
-app.run()
-if __name__ == "__main__":
+#if __name__ == "__main__":
+def run_flask():
     flask_app.run(host='0.0.0.0', port=5000)
 
-    
+flask_thread = Thread(target=run_flask)
+flask_thread.start()
+
+app.run()
     # Stop the Pyrogram client when the Flask app is stopped
     #app.stop()
