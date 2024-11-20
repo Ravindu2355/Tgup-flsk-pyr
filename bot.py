@@ -142,19 +142,15 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
              )
         fid=s_v.video.file_id
         time.sleep(1)
-        try:
-            await app.send_video(
+        await app.send_message(
+                chat_id=chat_id,
+                text=f"M_CHAT: {M_CHAT}({type(M_CHAT)}\n chat_id: {chat_id}({type(chat_id)})"
+        )
+        await app.send_video(
             chat_id=int(M_CHAT),
             video=fid,
             caption=f"**Uploaded via RvXBot**"
-            )
-            await app.send_message(
-                chat_id=chat_id,
-                text=f"M_CHAT: {M_CHAT}({type(M_CHAT)}\n chat_id: {chat_id}({type(chat_id)})"
-            )
-        except Exception as e:
-            pass
-        
+        )
         # Clean up the local files after uploading 
         os.remove(filename)
         if thumb_path and os.path.exists(thumb_path):
