@@ -141,6 +141,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
               )
              )
         fid=s_v.video.file_id
+        time.sleep(1)
         try:
             await app.send_video(
             chat_id=int(M_CHAT),
