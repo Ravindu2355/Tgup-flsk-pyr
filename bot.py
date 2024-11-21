@@ -9,7 +9,7 @@ from flask_cors import CORS
 from task_manager import read_tasks, write_task
 from cookie import r_cookies, w_cookies, clear_cookies
 from threading import Thread
-from dl_m3u8 import download_m3u8_segments
+#from dl_m3u8 import download_m3u8_segments
 # Function to process a task (this could be expanded to do anything)
 
 flask_app = Flask(__name__)
