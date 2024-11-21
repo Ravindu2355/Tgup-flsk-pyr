@@ -53,7 +53,7 @@ def get_file_name_from_response(response):
     return f"video_{str(time.time())}.mp4"
 
 # Function to upload a video from a URL to Telegram
-async def upload_from_url(client: Client, chat_id:str, url: str):
+async def upload_from_url(client: Client, chat_id:str, url: str, n_caption=None):
     global progress_s
     reply_msg = await app.send_message(chat_id=chat_id,text="Processing!....")
     progress_s="Processing...!"
@@ -62,11 +62,8 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
             await reply_msg.edit_text("Please provide a URL!")
             progress_s="free"
             return
-        # Extract the URL from the command
-        #url = message.text.split()[1]
         await reply_msg.edit_text("Starting download...")
         progress_s="Download starting...."
-        # Start downloading the file
         cookies = r_cookies()
         if not cookies:
             response = requests.get(url, cookies=cookies, stream=True)
@@ -81,6 +78,9 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
             filename = filename.split("?")[0]
         if "." not in filename:
             filename = get_file_name_from_response(response)
+        m_caption = f'Uploaded: {filename}'
+        if n_caption is not None:
+            m_caption = n_caption
         downloaded_size = 0
         tr_s = ''
         start_t=time.time()
@@ -130,7 +130,7 @@ async def upload_from_url(client: Client, chat_id:str, url: str):
                chat_id = int(chat_id),
                video = filename,
                duration=duration,
-               caption=f'Uploaded: {filename}',
+               caption=m_caption,
                thumb=thumb_path,
                supports_streaming=True,  # Ensure the video is streamable
                progress=progress_for_pyrogram,
@@ -215,33 +215,6 @@ async def c_disc(client,message:types.Message):
         f"Used: {used_space:.2f} GB\n"
         f"Free: {free_space:.2f} GB"
     )
-
-def process_task(task):
-    chat_id = task["chat_id"]
-    url = task["url"]
-    # Example task processing: Send a request to the provided URL
-    try:
-        async def run_upload():
-          async with app:
-            await upload_from_url(app, chat_id=chat_id, url=video_url)
-
-    # Run the async function in the event loop
-        asyncio.run(run_upload())
-    except requests.RequestException as e:
-        print(f"Error processing task for chat_id {chat_id}: {e}")
-
-# Automated function to listen for new tasks and process them
-def listen_for_tasks():
-    processed_task_ids = set()  # To track which tasks have already been processed
-    while True:
-        tasks = read_tasks()  # Get the current tasks
-        for task in tasks:
-            if task["chat_id"] not in processed_task_ids:
-                print(f"Processing task for chat_id {task['chat_id']}...")
-                process_task(task)
-                processed_task_ids.add(task["chat_id"])  # Mark the task as processed
-        # Sleep for a short interval (e.g., 5 seconds) before checking for new tasks again
-        time.sleep(5)
         
 @flask_app.route('/makefree')
 async def pr_free():
@@ -257,19 +230,22 @@ async def pr_free():
 def s_pro():
     return jsonify({"s":1,"progress": progress_s,"message":"success!"})
 
-def run_upload_t(chat_id, video_url):
-    asyncio.run(upload_from_url(app, chat_id=chat_id, url=video_url))
+def run_upload_t(chat_id, video_url,n_caption):
+    asyncio.run(upload_from_url(app, chat_id=chat_id, url=video_url, n_caption=n_caption))
 
 @flask_app.route('/upload', methods=['GET'])
 def upload_video():
     chat_id = int(request.args.get('chatid'))
     video_url = request.args.get('url')
+    n_caption = request.args.get('cap')
     if not chat_id or not video_url:
         return jsonify({"s":0,"message": "No parameter found!"})
+    if not n_caption:
+        n_caption = None
     if progress_s != "free":
         return jsonify({"s":0,"message": "Sorry bot is busy right now try again later!"})
     try:
-        upload_thread = Thread(target=run_upload_t, args=(chat_id, video_url))
+        upload_thread = Thread(target=run_upload_t, args=(chat_id, video_url, n_caption))
         upload_thread.start()
         return jsonify({"s":1,"message": "Video add to Uploading!","resd":f"chat_id: {chat_id} & url: {video_url}"})
     except Exception as e:
